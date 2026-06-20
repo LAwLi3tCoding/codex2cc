@@ -1,0 +1,25 @@
+{
+  "name": "codex2cc",
+  "version": "0.1.0",
+  "description": "Codex plugin that delegates bounded work to a Claude Code compatible CLI.",
+  "type": "module",
+  "private": true,
+  "author": "LAwLi3tCoding",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test \"dist/tests/**/*.test.js\"",
+    "smoke:mcp": "node scripts/smoke-mcp.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.20.0",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.1",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "codex2cc-local",
+  "interface": {
+    "displayName": "Codex2CC Local"
+  },
+  "plugins": [
+    {
+      "name": "codex2cc",
+      "source": {
+        "source": "local",
+        "path": "./plugins/codex2cc"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

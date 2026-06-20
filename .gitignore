@@ -1,0 +1,14 @@
+.DS_Store
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+.env
+.env.*
+
+.omc/
+.omx/
+
+plugins/codex2cc/node_modules/
