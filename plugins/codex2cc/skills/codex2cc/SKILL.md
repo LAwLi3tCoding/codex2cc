@@ -16,6 +16,9 @@ Call the `delegate_to_cc` MCP tool.
 Important inputs:
 
 - `prompt`: delegated task text.
+- `contextSummary`: optional Codex-visible conversation or task summary.
+- `currentInstruction`: optional active task instruction. Use this when the
+  user asks to call cc based on prior Codex conversation context.
 - `mode`: `design`, `code`, `review`, or `custom`.
 - `cwd`: repository or workspace where the downstream CLI should run.
 - `ccCommand`: optional executable override.
@@ -37,7 +40,18 @@ the correct protocol for the installed CLI.
 
 ## Codex Responsibilities
 
+- When the user asks to call cc during an ongoing Codex conversation, first
+  summarize the task-relevant context currently visible to Codex and pass it as
+  `contextSummary`.
+- Put the user's newest requested next step in `currentInstruction`; keep
+  `prompt` as a concise fallback.
 - Review the returned `structuredContent`.
 - Inspect changed files before claiming completion.
 - Run appropriate tests or verification after delegated coding work.
 - Continue orchestration from the returned status, error, and log tails.
+
+## Boundary
+
+Codex2CC's MCP server cannot independently read Codex's private transcript.
+Conversation-aware delegation works through explicit handoff: Codex prepares the
+summary before calling the tool.

@@ -15,7 +15,7 @@ export function createServer(): McpServer {
     {
       title: "Delegate to Claude Code compatible CLI",
       description:
-        "Launch a configured Claude Code compatible CLI for a bounded task, stream output, and return a structured result to Codex.",
+        "Launch a configured Claude Code compatible CLI for a bounded task. Codex may pass a contextSummary and currentInstruction for conversation-aware delegation.",
       inputSchema: delegateInputSchema,
       outputSchema: z.object({
         status: z.enum(["success", "failed", "timed_out"]),
@@ -28,6 +28,7 @@ export function createServer(): McpServer {
           source: z.string()
         }),
         promptPreview: z.string(),
+        contextProvided: z.boolean(),
         cwd: z.string(),
         mode: z.enum(["design", "code", "review", "custom"]),
         stdoutTail: z.string(),

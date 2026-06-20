@@ -4,9 +4,12 @@ export interface BuildDelegatedPromptInput {
   mode: DelegationMode;
   cwd: string;
   prompt: string;
+  contextSummary?: string;
+  currentInstruction?: string;
 }
 
 export function buildDelegatedPrompt(input: BuildDelegatedPromptInput): string {
+  const taskText = input.currentInstruction ?? input.prompt;
   const header = [
     "You are a delegated worker launched by Codex.",
     "Codex remains the orchestrator and final reviewer.",
@@ -14,13 +17,17 @@ export function buildDelegatedPrompt(input: BuildDelegatedPromptInput): string {
     `Workspace: ${input.cwd}`,
     "When finished, return control to Codex with a concise summary."
   ];
+  const contextSection = input.contextSummary
+    ? ["", "Codex-visible context summary:", input.contextSummary]
+    : [];
 
   if (input.mode === "custom") {
     return [
       ...header,
+      ...contextSection,
       "",
-      "Task:",
-      input.prompt,
+      "Current instruction from Codex:",
+      taskText,
       "",
       "Do not claim final acceptance; return control to Codex."
     ].join("\n");
@@ -34,9 +41,10 @@ export function buildDelegatedPrompt(input: BuildDelegatedPromptInput): string {
     "- List changed files, commands run, and blockers.",
     "- Do not self-approve final completion.",
     "- Explicitly return control to Codex for review.",
+    ...contextSection,
     "",
-    "Task:",
-    input.prompt
+    "Current instruction from Codex:",
+    taskText
   ].join("\n");
 }
 

@@ -24,4 +24,18 @@ describe("buildDelegatedPrompt", () => {
         assert.match(prompt, /return control to Codex/);
         assert.doesNotMatch(prompt, /changed files/);
     });
+    it("includes Codex-visible context summary and current instruction when provided", () => {
+        const prompt = buildDelegatedPrompt({
+            mode: "code",
+            cwd: "/tmp/project",
+            prompt: "Fallback task text.",
+            contextSummary: "Codex already designed the API and selected option B.",
+            currentInstruction: "Implement the selected API boundary."
+        });
+        assert.match(prompt, /Codex-visible context summary:/);
+        assert.match(prompt, /Codex already designed the API/);
+        assert.match(prompt, /Current instruction from Codex:/);
+        assert.match(prompt, /Implement the selected API boundary/);
+        assert.doesNotMatch(prompt, /Fallback task text/);
+    });
 });

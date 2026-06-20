@@ -9,6 +9,8 @@ export const DEFAULT_OUTPUT_BYTES = 65_536;
 
 export const delegateInputSchema = z.object({
   prompt: z.string().min(1),
+  contextSummary: z.string().min(1).optional(),
+  currentInstruction: z.string().min(1).optional(),
   cwd: z.string().min(1).optional(),
   mode: z.enum(["design", "code", "review", "custom"]).default("custom"),
   timeoutMs: z.number().int().min(100).max(MAX_TIMEOUT_MS).default(DEFAULT_TIMEOUT_MS),
@@ -21,6 +23,8 @@ export const delegateInputSchema = z.object({
 
 export interface NormalizedDelegateInput {
   prompt: string;
+  contextSummary?: string;
+  currentInstruction?: string;
   cwd: string;
   mode: DelegationMode;
   timeoutMs: number;

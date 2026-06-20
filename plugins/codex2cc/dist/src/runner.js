@@ -13,7 +13,9 @@ export async function runDelegatedTask(input) {
     const delegatedPrompt = buildDelegatedPrompt({
         mode: input.mode,
         cwd,
-        prompt: input.prompt
+        prompt: input.prompt,
+        contextSummary: input.contextSummary,
+        currentInstruction: input.currentInstruction
     });
     const args = [...(input.ccArgs ?? []), delegatedPrompt];
     const redactedArgs = [...(input.ccArgs ?? []), "[prompt]"];
@@ -90,6 +92,7 @@ export async function runDelegatedTask(input) {
             source: command.source
         },
         promptPreview: previewPrompt(delegatedPrompt),
+        contextProvided: Boolean(input.contextSummary),
         cwd,
         mode: input.mode,
         stdoutTail: stdout.text(),

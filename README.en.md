@@ -18,6 +18,8 @@ Codex reviews the evidence, runs checks, and decides the next step.
 - Returns structured status, exit code, signal, command metadata, duration,
   logs, and optional result file content.
 - Supports task modes: `design`, `code`, `review`, and `custom`.
+- Supports Codex-visible context handoff through `contextSummary` and
+  `currentInstruction`.
 - Keeps command execution shell-free by using `spawn()` with explicit arguments.
 
 ## Repository Layout
@@ -116,6 +118,10 @@ Tool name: `delegate_to_cc`.
 Input fields:
 
 - `prompt`: required delegated task.
+- `contextSummary`: optional summary of the prior Codex conversation or
+  task-relevant context. Codex should prepare this before calling the tool.
+- `currentInstruction`: optional latest task instruction. When present, this is
+  used as the active task while `prompt` remains a required fallback.
 - `cwd`: working directory. Defaults to the MCP server process directory.
 - `mode`: `design`, `code`, `review`, or `custom`.
 - `ccCommand`: optional downstream executable override.
@@ -133,7 +139,7 @@ Structured output includes:
 - `exitCode` and `signal`.
 - `durationMs`.
 - `command.executable` and redacted `command.args`.
-- `cwd`, `mode`, and `promptPreview`.
+- `cwd`, `mode`, `promptPreview`, and `contextProvided`.
 - `stdoutTail`, `stderrTail`, and truncation flags.
 - Optional `resultFile`.
 - Optional `error`.
@@ -146,6 +152,27 @@ bounded task:
 ```text
 Use Codex2CC to ask cc to review the current implementation and return findings.
 ```
+
+For conversation-aware delegation, Codex summarizes the visible conversation
+before calling the tool:
+
+```json
+{
+  "prompt": "Implement the next step.",
+  "contextSummary": "Codex has already selected the minimal API shape, rejected hooks for v1, and confirmed that ccCommand must not contain flags.",
+  "currentInstruction": "Implement the selected API boundary and return changed files plus verification commands.",
+  "mode": "code",
+  "cwd": "/path/to/repo",
+  "ccCommand": "claude",
+  "ccArgs": ["--print"]
+}
+```
+
+The MCP server cannot read Codex's private conversation transcript by itself.
+The supported mechanism is explicit handoff: Codex summarizes the context it can
+currently see, passes that summary in `contextSummary`, and sends the latest
+task in `currentInstruction`. Codex2CC then frames both sections into the final
+prompt passed to cc.
 
 For custom command configuration:
 

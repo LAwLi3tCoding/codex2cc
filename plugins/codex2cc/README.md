@@ -9,6 +9,10 @@ changes and run verification before claiming completion.
 ## Tool Inputs
 
 - `prompt`: delegated task.
+- `contextSummary`: optional summary of prior Codex-visible conversation or
+  task context.
+- `currentInstruction`: optional latest task instruction. When present, this is
+  the active task passed to the worker.
 - `mode`: `design`, `code`, `review`, or `custom`.
 - `cwd`: working directory.
 - `ccCommand`: optional executable override.
@@ -17,6 +21,13 @@ changes and run verification before claiming completion.
 - `resultFile`: optional relative path under `cwd`.
 - `maxOutputBytes`: output capture limit.
 - `streamOutput`: whether to mirror child output to the terminal.
+
+## Context Handoff
+
+The MCP server cannot read Codex conversation history on its own. For
+conversation-aware delegation, Codex should summarize the relevant visible
+conversation into `contextSummary` and put the newest task into
+`currentInstruction` before calling `delegate_to_cc`.
 
 ## Local Checks
 

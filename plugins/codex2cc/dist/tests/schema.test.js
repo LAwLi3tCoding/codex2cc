@@ -11,6 +11,15 @@ describe("normalizeDelegateInput", () => {
         assert.equal(input.maxOutputBytes, 65536);
         assert.equal(input.streamOutput, true);
     });
+    it("preserves optional context summary and current instruction", () => {
+        const input = normalizeDelegateInput({
+            prompt: "fallback",
+            contextSummary: "Prior Codex context.",
+            currentInstruction: "Do the next task."
+        }, "/tmp/project");
+        assert.equal(input.contextSummary, "Prior Codex context.");
+        assert.equal(input.currentInstruction, "Do the next task.");
+    });
     it("rejects invalid timeout and mode", () => {
         assert.throws(() => normalizeDelegateInput({ prompt: "x", mode: "other" }, "/tmp/project"), /mode/);
         assert.throws(() => normalizeDelegateInput({ prompt: "x", timeoutMs: 1 }, "/tmp/project"), /timeoutMs/);

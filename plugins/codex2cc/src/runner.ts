@@ -7,6 +7,8 @@ import { buildDelegatedPrompt, previewPrompt, type DelegationMode } from "./prom
 
 export interface RunDelegatedTaskInput {
   prompt: string;
+  contextSummary?: string;
+  currentInstruction?: string;
   cwd: string;
   mode: DelegationMode;
   timeoutMs: number;
@@ -32,6 +34,7 @@ export interface DelegatedTaskResult {
     source: string;
   };
   promptPreview: string;
+  contextProvided: boolean;
   cwd: string;
   mode: DelegationMode;
   stdoutTail: string;
@@ -55,7 +58,9 @@ export async function runDelegatedTask(input: RunDelegatedTaskInput): Promise<De
   const delegatedPrompt = buildDelegatedPrompt({
     mode: input.mode,
     cwd,
-    prompt: input.prompt
+    prompt: input.prompt,
+    contextSummary: input.contextSummary,
+    currentInstruction: input.currentInstruction
   });
   const args = [...(input.ccArgs ?? []), delegatedPrompt];
   const redactedArgs = [...(input.ccArgs ?? []), "[prompt]"];
@@ -146,6 +151,7 @@ export async function runDelegatedTask(input: RunDelegatedTaskInput): Promise<De
       source: command.source
     },
     promptPreview: previewPrompt(delegatedPrompt),
+    contextProvided: Boolean(input.contextSummary),
     cwd,
     mode: input.mode,
     stdoutTail: stdout.text(),

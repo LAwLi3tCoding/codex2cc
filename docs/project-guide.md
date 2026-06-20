@@ -129,6 +129,8 @@ Arguments must be passed via `ccArgs`.
 
 - it is a delegated worker;
 - Codex remains final reviewer;
+- any provided Codex-visible context summary is prior context, not a new task;
+- `currentInstruction`, when present, is the active task;
 - it should summarize changed files, commands, and blockers;
 - it should return control to Codex.
 
@@ -137,6 +139,8 @@ Arguments must be passed via `ccArgs`.
 `src/schema.ts` defines tool input defaults and limits:
 
 - `mode`: `custom` by default;
+- `contextSummary`: optional prior context prepared by Codex;
+- `currentInstruction`: optional active task prepared by Codex;
 - `timeoutMs`: 900000 by default, max 7200000;
 - `maxOutputBytes`: 65536 by default, max 1048576;
 - `streamOutput`: true by default.
@@ -148,6 +152,10 @@ Tool name: `delegate_to_cc`.
 Input fields:
 
 - `prompt`: required task text.
+- `contextSummary`: optional summary of prior Codex-visible conversation or
+  task context.
+- `currentInstruction`: optional latest task instruction. When present, this is
+  the active delegated task.
 - `cwd`: working directory.
 - `mode`: `design`, `code`, `review`, or `custom`.
 - `timeoutMs`: timeout in milliseconds.
@@ -166,6 +174,7 @@ Structured output fields:
 - `command.executable`;
 - `command.args`, with prompt redacted as `[prompt]`;
 - `promptPreview`;
+- `contextProvided`;
 - `cwd`;
 - `mode`;
 - `stdoutTail`;
@@ -182,6 +191,7 @@ Codex
   -> loads codex2cc plugin
   -> starts MCP server through scripts/codex2cc-mcp.js
   -> calls delegate_to_cc
+  -> Codex passes contextSummary/currentInstruction when conversation context matters
   -> validates input
   -> resolves CLI command
   -> builds delegated prompt
@@ -190,6 +200,34 @@ Codex
   -> returns structured result
   -> Codex reviews and continues orchestration
 ```
+
+## Conversation Context Handoff
+
+Codex2CC supports context-aware delegation, but the context handoff is explicit.
+The MCP server does not have an API for reading Codex's private conversation
+history or transcript by itself.
+
+When the user asks Codex to call cc using prior conversation context, Codex
+should:
+
+1. summarize the task-relevant visible conversation into `contextSummary`;
+2. put the latest user request or next-step instruction into
+   `currentInstruction`;
+3. keep `prompt` as a concise fallback task string;
+4. call `delegate_to_cc`.
+
+The prompt builder then passes cc a stable structure:
+
+```text
+Codex-visible context summary:
+...
+
+Current instruction from Codex:
+...
+```
+
+This makes cc aware of the important prior Codex context without requiring the
+plugin to access hidden runtime state.
 
 ## Installing Locally
 

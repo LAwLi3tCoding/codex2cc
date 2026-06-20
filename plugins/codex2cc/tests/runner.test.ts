@@ -30,6 +30,29 @@ describe("runDelegatedTask", () => {
     assert.deepEqual(result.command.args, [path.join(fixturesDir, "echo-worker.mjs"), "[prompt]"]);
   });
 
+  it("passes Codex-visible context summary to the worker prompt", async () => {
+    const cwd = await mkdtemp(path.join(os.tmpdir(), "codex2cc-context-"));
+
+    const result = await runDelegatedTask({
+      prompt: "fallback",
+      contextSummary: "Codex found that implementation should stay minimal.",
+      currentInstruction: "Apply the minimal implementation.",
+      mode: "code",
+      cwd,
+      ccCommand: process.execPath,
+      ccArgs: [path.join(fixturesDir, "echo-worker.mjs")],
+      streamOutput: false,
+      timeoutMs: 2000,
+      maxOutputBytes: 2048
+    });
+
+    assert.equal(result.status, "success");
+    assert.match(result.stdoutTail, /Codex-visible context summary:/);
+    assert.match(result.stdoutTail, /implementation should stay minimal/);
+    assert.match(result.stdoutTail, /Current instruction from Codex:/);
+    assert.match(result.stdoutTail, /Apply the minimal implementation/);
+  });
+
   it("reports non-zero exits as failed", async () => {
     const cwd = await mkdtemp(path.join(os.tmpdir(), "codex2cc-fail-"));
 

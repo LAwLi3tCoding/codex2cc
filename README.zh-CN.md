@@ -16,6 +16,7 @@ Codex，由 Codex 继续编排、审核和验证。
 - 截取有上限的 stdout 和 stderr 尾部日志。
 - 返回结构化状态、退出码、信号、命令元数据、耗时、日志和可选结果文件内容。
 - 支持 `design`、`code`、`review`、`custom` 四种任务模式。
+- 支持通过 `contextSummary` 和 `currentInstruction` 把 Codex 可见上下文交给 cc。
 - 使用无 shell 的 `spawn()` 启动命令，参数显式传入。
 
 ## 仓库结构
@@ -135,6 +136,9 @@ export CODEX2CC_CC_COMMAND=/usr/local/bin/claude
 输入字段：
 
 - `prompt`：必填，被委托的任务。
+- `contextSummary`：可选，Codex 在调用工具前整理出的前文对话或任务相关上下文摘要。
+- `currentInstruction`：可选，最新任务指令；提供后它会作为 cc 的当前任务，`prompt`
+  仍作为必填兜底字段保留。
 - `cwd`：工作目录。默认是 MCP server 进程目录。
 - `mode`：`design`、`code`、`review` 或 `custom`。
 - `ccCommand`：可选，下游可执行文件覆盖值。
@@ -150,7 +154,7 @@ export CODEX2CC_CC_COMMAND=/usr/local/bin/claude
 - `exitCode` 和 `signal`。
 - `durationMs`。
 - `command.executable` 和脱敏后的 `command.args`。
-- `cwd`、`mode` 和 `promptPreview`。
+- `cwd`、`mode`、`promptPreview` 和 `contextProvided`。
 - `stdoutTail`、`stderrTail` 和截断标记。
 - 可选 `resultFile`。
 - 可选 `error`。
@@ -162,6 +166,25 @@ export CODEX2CC_CC_COMMAND=/usr/local/bin/claude
 ```text
 使用 Codex2CC 让 cc 审核当前实现，并返回问题列表。
 ```
+
+如果要在 Codex 对话过程中让 cc 承接前文上下文，Codex 会先总结当前可见对话，
+再调用工具：
+
+```json
+{
+  "prompt": "执行下一步任务。",
+  "contextSummary": "Codex 已经确定采用最小 API 方案，v1 不引入 hooks，并确认 ccCommand 不能带参数。",
+  "currentInstruction": "实现选定的 API 边界，并返回修改文件和验证命令。",
+  "mode": "code",
+  "cwd": "/path/to/repo",
+  "ccCommand": "claude",
+  "ccArgs": ["--print"]
+}
+```
+
+MCP server 不能自己读取 Codex 私有对话 transcript。当前支持的机制是显式交接：
+Codex 先把自己当前可见的上下文总结成 `contextSummary`，把最新任务放进
+`currentInstruction`，Codex2CC 再把两部分组织进最终传给 cc 的 prompt。
 
 带自定义命令配置的示例：
 
