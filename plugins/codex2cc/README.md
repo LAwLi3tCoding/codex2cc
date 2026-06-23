@@ -3,6 +3,9 @@
 This plugin exposes one MCP tool, `delegate_to_cc`, that launches a configured
 Claude Code compatible CLI as a downstream worker.
 
+This local plugin configuration sets `CODEX2CC_CC_COMMAND=occ` in `.mcp.json`,
+so calls without `ccCommand` start `occ` by default.
+
 Codex should use the returned `structuredContent` as evidence, then review
 changes and run verification before claiming completion.
 

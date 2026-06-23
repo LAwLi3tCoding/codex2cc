@@ -2,7 +2,10 @@
   "mcpServers": {
     "codex2cc": {
       "command": "node",
-      "args": ["./scripts/codex2cc-mcp.js"]
+      "args": ["./scripts/codex2cc-mcp.js"],
+      "env": {
+        "CODEX2CC_CC_COMMAND": "occ"
+      }
     }
   }
 }

@@ -34,6 +34,10 @@ The tool resolves the downstream command in this order:
 2. `CODEX2CC_CC_COMMAND`.
 3. `claude`.
 
+This local plugin configuration sets `CODEX2CC_CC_COMMAND=occ` in `.mcp.json`,
+so the default downstream command is `occ` unless a tool call overrides
+`ccCommand`.
+
 Do not rely on `/usr/bin/cc`; on macOS that is clang and the tool rejects it.
 For Claude Code print-style execution, pass `ccArgs: ["--print"]` if that is
 the correct protocol for the installed CLI.

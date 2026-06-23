@@ -82,11 +82,14 @@ plugin manifest and calls `delegate_to_cc` with a fixture worker.
 
 ## Configure the Downstream CLI
 
+This local plugin configuration starts `occ` by default through
+`CODEX2CC_CC_COMMAND` in `plugins/codex2cc/.mcp.json`.
+
 Codex2CC resolves the downstream executable in this order:
 
 1. Tool input `ccCommand`.
 2. Environment variable `CODEX2CC_CC_COMMAND`.
-3. Fallback command `claude`.
+3. Fallback command `claude` when neither of the above is set.
 
 `ccCommand` must be only the executable name or path. Put flags and arguments in
 `ccArgs`.
@@ -98,7 +101,7 @@ Valid:
   "prompt": "Design the new API boundary.",
   "mode": "design",
   "cwd": "/path/to/repo",
-  "ccCommand": "claude",
+  "ccCommand": "occ",
   "ccArgs": ["--print"]
 }
 ```
@@ -163,7 +166,7 @@ before calling the tool:
   "currentInstruction": "Implement the selected API boundary and return changed files plus verification commands.",
   "mode": "code",
   "cwd": "/path/to/repo",
-  "ccCommand": "claude",
+  "ccCommand": "occ",
   "ccArgs": ["--print"]
 }
 ```
@@ -181,7 +184,7 @@ For custom command configuration:
   "prompt": "Implement the narrow bug fix and summarize changed files.",
   "mode": "code",
   "cwd": "/path/to/repo",
-  "ccCommand": "claude",
+  "ccCommand": "occ",
   "ccArgs": ["--print"],
   "timeoutMs": 1800000,
   "streamOutput": true
