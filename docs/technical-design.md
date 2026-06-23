@@ -130,7 +130,8 @@ Resolution order:
 
 1. `ccCommand` tool input.
 2. `CODEX2CC_CC_COMMAND` environment variable.
-3. `claude`.
+3. ignored local file `codex2cc.local.json`.
+4. fallback `claude`.
 
 The resolver rejects unsafe or wrong defaults:
 

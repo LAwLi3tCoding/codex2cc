@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process";
 import { stat, readFile } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { resolveCliCommand } from "./cli-command.js";
 import { LogBuffer } from "./log-buffer.js";
 import { buildDelegatedPrompt, previewPrompt, type DelegationMode } from "./prompt.js";
@@ -53,6 +54,7 @@ export async function runDelegatedTask(input: RunDelegatedTaskInput): Promise<De
   const cwd = path.resolve(input.cwd);
   const command = await resolveCliCommand({
     ccCommand: input.ccCommand,
+    configDir: path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", ".."),
     env: process.env
   });
   const delegatedPrompt = buildDelegatedPrompt({

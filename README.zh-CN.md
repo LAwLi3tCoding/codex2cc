@@ -79,18 +79,21 @@ server，并用 fixture worker 调用 `delegate_to_cc`。
 
 ## 启动 cc 的命令
 
-当前本地插件配置通过 `plugins/codex2cc/.mcp.json` 里的
-`CODEX2CC_CC_COMMAND` 默认启动：
+每个人可以快速设置自己的本地默认 cc 命令：
 
 ```bash
-occ
+cd plugins/codex2cc
+npm run configure:cc -- occ
 ```
+
+这会写入被 git 忽略的 `codex2cc.local.json`，不会污染共享仓库配置。
 
 Codex2CC 按下面顺序解析下游 CLI：
 
 1. 工具入参 `ccCommand`。
 2. 环境变量 `CODEX2CC_CC_COMMAND`。
-3. 如果前两者都未设置，才使用兜底命令 `claude`。
+3. 本地忽略文件 `plugins/codex2cc/codex2cc.local.json`。
+4. 如果前面都未设置，才使用兜底命令 `claude`。
 
 `ccCommand` 只能是可执行文件名或路径，不能带空格和参数。参数必须放到
 `ccArgs`。

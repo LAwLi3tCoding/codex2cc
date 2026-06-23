@@ -8,6 +8,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "configure:cc": "node scripts/configure-cc-command.js",
     "test": "npm run build && node --test \"dist/tests/**/*.test.js\"",
     "smoke:mcp": "node scripts/smoke-mcp.js"
   },

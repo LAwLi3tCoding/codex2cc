@@ -113,7 +113,8 @@ input with Zod, calls the runner, and returns both:
 
 1. tool input `ccCommand`;
 2. environment variable `CODEX2CC_CC_COMMAND`;
-3. fallback `claude`.
+3. ignored local file `codex2cc.local.json`;
+4. fallback `claude`.
 
 It rejects:
 

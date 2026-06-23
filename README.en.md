@@ -82,17 +82,22 @@ plugin manifest and calls `delegate_to_cc` with a fixture worker.
 
 ## Configure the Downstream CLI
 
-This local plugin configuration starts `occ` by default through
-`CODEX2CC_CC_COMMAND` in `plugins/codex2cc/.mcp.json`.
-
 Codex2CC resolves the downstream executable in this order:
 
 1. Tool input `ccCommand`.
 2. Environment variable `CODEX2CC_CC_COMMAND`.
-3. Fallback command `claude` when neither of the above is set.
+3. Local ignored file `plugins/codex2cc/codex2cc.local.json`.
+4. Fallback command `claude` when none of the above is set.
 
 `ccCommand` must be only the executable name or path. Put flags and arguments in
 `ccArgs`.
+
+Fast local setup:
+
+```bash
+cd plugins/codex2cc
+npm run configure:cc -- occ
+```
 
 Valid:
 

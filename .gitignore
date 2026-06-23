@@ -12,3 +12,4 @@ pnpm-debug.log*
 .omx/
 
 plugins/codex2cc/node_modules/
+plugins/codex2cc/codex2cc.local.json

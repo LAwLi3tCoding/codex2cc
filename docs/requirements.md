@@ -31,6 +31,7 @@ design, coding, analysis, and verification tasks.
 3. Resolve the downstream CLI command in this order:
    - explicit tool input `ccCommand`;
    - environment variable `CODEX2CC_CC_COMMAND`;
+   - local ignored `codex2cc.local.json` file;
    - fallback command `claude`.
 4. Reject `/usr/bin/cc` and other compiler-looking `cc` resolutions by default.
 5. Launch the downstream CLI in a way that streams stdout and stderr to the
