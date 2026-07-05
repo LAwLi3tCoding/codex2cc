@@ -39,7 +39,8 @@ export function createServer(): McpServer {
           .object({
             path: z.string(),
             content: z.string(),
-            truncated: z.boolean()
+            truncated: z.boolean(),
+            error: z.string().optional()
           })
           .optional(),
         error: z.string().optional()

@@ -77,6 +77,42 @@ describe("resolveCliCommand", () => {
     assert.deepEqual(resolved.args, ["-ic", 'exec cc-local "$@"', "codex2cc-local"]);
   });
 
+  it("rejects non-string ccArgs in ignored local config", async () => {
+    const cwd = await mkdtemp(path.join(os.tmpdir(), "codex2cc-config-invalid-args-"));
+    await writeFile(
+      path.join(cwd, "codex2cc.local.json"),
+      '{"ccCommand":"custom-claude","ccArgs":["--print",7]}\n',
+      "utf8"
+    );
+
+    await assert.rejects(
+      () =>
+        resolveCliCommand({
+          env: {},
+          configDir: cwd
+        }),
+      /ccArgs/
+    );
+  });
+
+  it("rejects non-array ccArgs in ignored local config", async () => {
+    const cwd = await mkdtemp(path.join(os.tmpdir(), "codex2cc-config-non-array-args-"));
+    await writeFile(
+      path.join(cwd, "codex2cc.local.json"),
+      '{"ccCommand":"custom-claude","ccArgs":"--print"}\n',
+      "utf8"
+    );
+
+    await assert.rejects(
+      () =>
+        resolveCliCommand({
+          env: {},
+          configDir: cwd
+        }),
+      /ccArgs/
+    );
+  });
+
   it("uses environment before ignored local config", async () => {
     const cwd = await mkdtemp(path.join(os.tmpdir(), "codex2cc-env-config-"));
     await writeFile(

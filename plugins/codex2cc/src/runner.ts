@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import { spawn, type ChildProcess } from "node:child_process";
 import { stat, readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -46,6 +46,7 @@ export interface DelegatedTaskResult {
     path: string;
     content: string;
     truncated: boolean;
+    error?: string;
   };
   error?: string;
 }
@@ -87,6 +88,7 @@ export async function runDelegatedTask(input: RunDelegatedTaskInput): Promise<De
 
     const child = spawn(command.command, args, {
       cwd,
+      detached: process.platform !== "win32",
       stdio: ["ignore", "pipe", "pipe"]
     });
 
@@ -132,10 +134,10 @@ export async function runDelegatedTask(input: RunDelegatedTaskInput): Promise<De
 
     timeout = setTimeout(() => {
       timedOut = true;
-      child.kill("SIGTERM");
+      signalChildProcessTree(child, "SIGTERM");
       killTimer = setTimeout(() => {
         if (child.exitCode === null && child.signalCode === null) {
-          child.kill("SIGKILL");
+          signalChildProcessTree(child, "SIGKILL");
         }
       }, killGraceMs);
     }, input.timeoutMs);
@@ -216,7 +218,7 @@ async function readResultFile(
   cwd: string,
   resultFile: string,
   maxBytes: number
-): Promise<{ path: string; content: string; truncated: boolean }> {
+): Promise<{ path: string; content: string; truncated: boolean; error?: string }> {
   if (path.isAbsolute(resultFile)) {
     throw new Error("resultFile must stay inside cwd");
   }
@@ -227,14 +229,44 @@ async function readResultFile(
     throw new Error("resultFile must stay inside cwd");
   }
 
-  const fileStat = await stat(absolutePath);
-  if (fileStat.size > maxBytes) {
-    throw new Error(`resultFile exceeds maxOutputBytes (${maxBytes})`);
+  try {
+    const fileStat = await stat(absolutePath);
+    if (fileStat.size > maxBytes) {
+      return {
+        path: absolutePath,
+        content: "",
+        truncated: true,
+        error: `resultFile exceeds maxOutputBytes (${maxBytes})`
+      };
+    }
+
+    return {
+      path: absolutePath,
+      content: await readFile(absolutePath, "utf8"),
+      truncated: false
+    };
+  } catch (error) {
+    return {
+      path: absolutePath,
+      content: "",
+      truncated: false,
+      error: error instanceof Error ? error.message : String(error)
+    };
+  }
+}
+
+function signalChildProcessTree(child: ChildProcess, signal: NodeJS.Signals): void {
+  if (process.platform !== "win32" && child.pid !== undefined) {
+    try {
+      process.kill(-child.pid, signal);
+      return;
+    } catch (error) {
+      const code = typeof error === "object" && error !== null && "code" in error ? error.code : "";
+      if (code === "ESRCH") {
+        return;
+      }
+    }
   }
 
-  return {
-    path: absolutePath,
-    content: await readFile(absolutePath, "utf8"),
-    truncated: false
-  };
+  child.kill(signal);
 }

@@ -27,9 +27,12 @@ changes and run verification before claiming completion.
 - `ccCommand`: optional executable override.
 - `ccArgs`: optional arguments. The delegated prompt is appended last.
 - `timeoutMs`: timeout in milliseconds.
-- `resultFile`: optional relative path under `cwd`.
+- `resultFile`: optional relative path under `cwd`. Missing or oversized files
+  are reported inside `structuredContent.resultFile.error` without discarding
+  the worker stdout/stderr result.
 - `maxOutputBytes`: output capture limit.
-- `streamOutput`: whether to mirror child output to the terminal.
+- `streamOutput`: whether to mirror child output to the terminal. It defaults to
+  `false` so delegated stdout cannot pollute the MCP stdio transport.
 
 ## Context Handoff
 
@@ -47,9 +50,9 @@ Command resolution order:
 3. ignored local file `codex2cc.local.json`;
 4. fallback `claude`.
 
-The ignored local file may also include `ccArgs`. Those local arguments are
-prepended before tool input `ccArgs`, and the delegated prompt is still appended
-last.
+The ignored local file may also include `ccArgs`, which must be an array of
+strings. Those local arguments are used only when the local config command wins
+resolution; tool input `ccArgs` are then appended before the delegated prompt.
 
 ## Local Checks
 

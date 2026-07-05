@@ -14,6 +14,11 @@ const transport = new StdioClientTransport({
   args: [serverScript],
   cwd: pluginRoot
 });
+const transportErrors = [];
+
+transport.onerror = (error) => {
+  transportErrors.push(error instanceof Error ? error.message : String(error));
+};
 
 try {
   await client.connect(transport);
@@ -30,7 +35,6 @@ try {
       mode: "custom",
       ccCommand: process.execPath,
       ccArgs: [fixture],
-      streamOutput: false,
       timeoutMs: 2000,
       maxOutputBytes: 2048
     }
@@ -43,6 +47,9 @@ try {
   const structured = result.structuredContent;
   if (!structured || structured.status !== "success") {
     throw new Error(`unexpected structured result: ${JSON.stringify(structured)}`);
+  }
+  if (transportErrors.length > 0) {
+    throw new Error(`stdio transport received non-MCP output: ${transportErrors.join("; ")}`);
   }
 
   console.log("codex2cc MCP smoke passed");

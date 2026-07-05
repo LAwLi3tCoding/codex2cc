@@ -25,6 +25,8 @@ Important inputs:
 - `ccArgs`: optional base arguments. The delegated prompt is appended last.
 - `timeoutMs`: task timeout.
 - `resultFile`: optional relative result file under `cwd`.
+- `streamOutput`: optional output mirroring flag. It defaults to `false` for MCP
+  stdio safety; set it only when direct terminal mirroring is intentional.
 
 ## Command Selection
 
@@ -46,9 +48,10 @@ Do not rely on `/usr/bin/cc`; on macOS that is clang and the tool rejects it.
 For Claude Code print-style execution, pass `ccArgs: ["--print"]` if that is
 the correct protocol for the installed CLI.
 
-The ignored `codex2cc.local.json` file may also include `ccArgs`; those local
-arguments are prepended before tool input `ccArgs`, then the delegated prompt is
-appended last.
+The ignored `codex2cc.local.json` file may also include `ccArgs`, which must be
+an array of strings. Those local arguments are used only when the local config
+command wins resolution; tool input `ccArgs` are then appended before the
+delegated prompt.
 
 ## Codex Responsibilities
 
