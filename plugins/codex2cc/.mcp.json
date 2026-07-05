@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "codex2cc": {
+      "command": "node",
+      "args": ["./scripts/codex2cc-mcp.js"]
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "codex2cc",
+  "version": "0.1.0+codex.20260620081316",
+  "description": "Delegate bounded Codex tasks to a Claude Code compatible CLI and return structured results.",
+  "author": {
+    "name": "LAwLi3tCoding"
+  },
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "claude-code",
+    "mcp",
+    "delegation"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Codex2CC",
+    "shortDescription": "Delegate Codex work to a Claude Code compatible CLI.",
+    "longDescription": "Codex2CC exposes an MCP tool that launches a configured Claude Code compatible CLI for design, coding, review, or custom tasks, streams its output, and returns structured execution results to Codex for review and orchestration.",
+    "developerName": "LAwLi3tCoding",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Delegate this design task to cc.",
+      "Ask cc to implement this scoped change.",
+      "Run a cc review lane and summarize results."
+    ]
+  }
+}
