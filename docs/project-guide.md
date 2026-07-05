@@ -232,12 +232,18 @@ plugin to access hidden runtime state.
 
 ## Installing Locally
 
-From the project root:
+Clone the repository first, then add the repository root as a local marketplace:
 
 ```bash
+git clone https://github.com/LAwLi3tCoding/codex2cc.git
+cd codex2cc
 codex plugin marketplace add "$(pwd)"
 codex plugin add codex2cc@codex2cc-local
 ```
+
+`codex plugin marketplace add "$(pwd)"` must be run from the repository root.
+The repository root is the marketplace source; the installable plugin is still
+resolved from `plugins/codex2cc`.
 
 Open a new Codex thread after installing or reinstalling, because plugin tools
 and skills are loaded at session start.

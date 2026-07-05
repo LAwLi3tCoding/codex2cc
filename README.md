@@ -106,12 +106,18 @@ plugin itself lives in `plugins/codex2cc`.
 
 ## Installation
 
-From the repository root:
+Clone the repository first, then add the repository root as a local marketplace:
 
 ```bash
+git clone https://github.com/LAwLi3tCoding/codex2cc.git
+cd codex2cc
 codex plugin marketplace add "$(pwd)"
 codex plugin add codex2cc@codex2cc-local
 ```
+
+`codex plugin marketplace add "$(pwd)"` is intentionally local-path based.
+Run it from the repository root; `$(pwd)` is the marketplace source, not the
+plugin directory.
 
 Open a new Codex session after installing or reinstalling. Codex loads plugin
 skills and starts MCP servers when a session starts.
@@ -572,12 +578,17 @@ codex2cc/
 
 ## 安装方式
 
-在仓库根目录执行：
+先克隆仓库，然后把仓库根目录添加为本地 marketplace：
 
 ```bash
+git clone https://github.com/LAwLi3tCoding/codex2cc.git
+cd codex2cc
 codex plugin marketplace add "$(pwd)"
 codex plugin add codex2cc@codex2cc-local
 ```
+
+`codex plugin marketplace add "$(pwd)"` 使用的是本地路径。需要在仓库根目录
+执行；这里的 `$(pwd)` 指 marketplace 源，不是插件目录。
 
 安装或重新安装后，打开一个新的 Codex 会话。Codex 会在会话启动时加载插件
 skill 并启动 MCP server。
