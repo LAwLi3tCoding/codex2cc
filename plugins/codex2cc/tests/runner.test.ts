@@ -110,6 +110,26 @@ describe("runDelegatedTask", () => {
     assert.match(result.stderrTail, /ignored SIGTERM/);
   });
 
+  it("returns when the worker exits even if a descendant keeps stdio open", async () => {
+    const cwd = await mkdtemp(path.join(os.tmpdir(), "codex2cc-descendant-"));
+    const startedAt = Date.now();
+
+    const result = await runDelegatedTask({
+      prompt: "child holds stdio",
+      mode: "custom",
+      cwd,
+      ccCommand: process.execPath,
+      ccArgs: [path.join(fixturesDir, "child-holds-stdio-worker.mjs")],
+      streamOutput: false,
+      timeoutMs: 3000,
+      maxOutputBytes: 2048
+    });
+
+    assert.equal(result.status, "success");
+    assert.match(result.stdoutTail, /parent exited/);
+    assert.ok(Date.now() - startedAt < 1000);
+  });
+
   it("reads result files under cwd", async () => {
     const cwd = await mkdtemp(path.join(os.tmpdir(), "codex2cc-result-"));
     await writeFile(path.join(cwd, "summary.txt"), "worker summary", "utf8");

@@ -92,11 +92,14 @@ Codex2CC resolves the downstream executable in this order:
 `ccCommand` must be only the executable name or path. Put flags and arguments in
 `ccArgs`.
 
+The ignored local file may also contain `ccArgs`; those local arguments are
+prepended before tool input `ccArgs`, and the delegated prompt is appended last.
+
 Fast local setup:
 
 ```bash
 cd plugins/codex2cc
-npm run configure:cc -- occ
+npm run configure:cc -- claude
 ```
 
 Valid:
@@ -106,7 +109,7 @@ Valid:
   "prompt": "Design the new API boundary.",
   "mode": "design",
   "cwd": "/path/to/repo",
-  "ccCommand": "occ",
+  "ccCommand": "claude",
   "ccArgs": ["--print"]
 }
 ```
@@ -171,7 +174,6 @@ before calling the tool:
   "currentInstruction": "Implement the selected API boundary and return changed files plus verification commands.",
   "mode": "code",
   "cwd": "/path/to/repo",
-  "ccCommand": "occ",
   "ccArgs": ["--print"]
 }
 ```
@@ -189,7 +191,7 @@ For custom command configuration:
   "prompt": "Implement the narrow bug fix and summarize changed files.",
   "mode": "code",
   "cwd": "/path/to/repo",
-  "ccCommand": "occ",
+  "ccCommand": "/usr/local/bin/claude",
   "ccArgs": ["--print"],
   "timeoutMs": 1800000,
   "streamOutput": true

@@ -11,7 +11,6 @@ if (!command || command === "--help" || command === "-h") {
       "Usage: npm run configure:cc -- <command>",
       "",
       "Examples:",
-      "  npm run configure:cc -- occ",
       "  npm run configure:cc -- claude",
       "  npm run configure:cc -- /usr/local/bin/claude",
       "",

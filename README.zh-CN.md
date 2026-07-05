@@ -83,7 +83,7 @@ server，并用 fixture worker 调用 `delegate_to_cc`。
 
 ```bash
 cd plugins/codex2cc
-npm run configure:cc -- occ
+npm run configure:cc -- claude
 ```
 
 这会写入被 git 忽略的 `codex2cc.local.json`，不会污染共享仓库配置。
@@ -98,6 +98,9 @@ Codex2CC 按下面顺序解析下游 CLI：
 `ccCommand` 只能是可执行文件名或路径，不能带空格和参数。参数必须放到
 `ccArgs`。
 
+本地忽略文件也可以包含 `ccArgs`；这些本地固定参数会排在工具入参
+`ccArgs` 前面，委托 prompt 仍然最后追加。
+
 正确示例：
 
 ```json
@@ -105,7 +108,7 @@ Codex2CC 按下面顺序解析下游 CLI：
   "prompt": "设计新的 API 边界。",
   "mode": "design",
   "cwd": "/path/to/repo",
-  "ccCommand": "occ",
+  "ccCommand": "claude",
   "ccArgs": ["--print"]
 }
 ```
@@ -118,11 +121,11 @@ Codex2CC 按下面顺序解析下游 CLI：
 }
 ```
 
-如果你的 cc 命令不是 `occ`，可以这样自定义：
+如果你的 cc 命令不在默认 `claude` 路径上，可以这样自定义：
 
 ```json
 {
-  "ccCommand": "/usr/local/bin/occ",
+  "ccCommand": "/usr/local/bin/claude",
   "ccArgs": ["--print"]
 }
 ```
@@ -130,7 +133,7 @@ Codex2CC 按下面顺序解析下游 CLI：
 也可以设置环境变量：
 
 ```bash
-export CODEX2CC_CC_COMMAND=/usr/local/bin/occ
+export CODEX2CC_CC_COMMAND=/usr/local/bin/claude
 ```
 
 ## 工具契约
@@ -181,7 +184,6 @@ export CODEX2CC_CC_COMMAND=/usr/local/bin/occ
   "currentInstruction": "实现选定的 API 边界，并返回修改文件和验证命令。",
   "mode": "code",
   "cwd": "/path/to/repo",
-  "ccCommand": "occ",
   "ccArgs": ["--print"]
 }
 ```
@@ -197,7 +199,7 @@ Codex 先把自己当前可见的上下文总结成 `contextSummary`，把最新
   "prompt": "实现这个小范围 bug 修复，并总结修改过的文件。",
   "mode": "code",
   "cwd": "/path/to/repo",
-  "ccCommand": "occ",
+  "ccCommand": "/usr/local/bin/claude",
   "ccArgs": ["--print"],
   "timeoutMs": 1800000,
   "streamOutput": true

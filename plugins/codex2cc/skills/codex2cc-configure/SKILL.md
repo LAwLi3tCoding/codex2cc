@@ -13,11 +13,11 @@ uses to start cc.
 From `plugins/codex2cc`:
 
 ```bash
-npm run configure:cc -- occ
+npm run configure:cc -- claude
 ```
 
-Replace `occ` with the local executable name or absolute path, for example
-`claude` or `/usr/local/bin/claude`.
+Replace `claude` with another local executable name or absolute path when
+needed, for example `/usr/local/bin/claude`.
 
 This writes `codex2cc.local.json`, which is ignored by git and read by the MCP
 wrapper before the server starts.

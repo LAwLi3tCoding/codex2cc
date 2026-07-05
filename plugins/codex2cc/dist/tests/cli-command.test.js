@@ -34,22 +34,34 @@ describe("resolveCliCommand", () => {
     });
     it("uses ignored local config before fallback", async () => {
         const cwd = await mkdtemp(path.join(os.tmpdir(), "codex2cc-config-"));
-        await writeFile(path.join(cwd, "codex2cc.local.json"), '{"ccCommand":"occ"}\n', "utf8");
+        await writeFile(path.join(cwd, "codex2cc.local.json"), '{"ccCommand":"custom-claude"}\n', "utf8");
         const resolved = await resolveCliCommand({
             env: {},
             configDir: cwd
         });
-        assert.equal(resolved.command, "occ");
+        assert.equal(resolved.command, "custom-claude");
         assert.equal(resolved.source, "local-config");
+    });
+    it("uses ccArgs from ignored local config with the local command", async () => {
+        const cwd = await mkdtemp(path.join(os.tmpdir(), "codex2cc-config-args-"));
+        await writeFile(path.join(cwd, "codex2cc.local.json"), '{"ccCommand":"/bin/zsh","ccArgs":["-ic","exec cc-local \\"$@\\"","codex2cc-local"]}\n', "utf8");
+        const resolved = await resolveCliCommand({
+            env: {},
+            configDir: cwd
+        });
+        assert.equal(resolved.command, "/bin/zsh");
+        assert.equal(resolved.source, "local-config");
+        assert.deepEqual(resolved.args, ["-ic", 'exec cc-local "$@"', "codex2cc-local"]);
     });
     it("uses environment before ignored local config", async () => {
         const cwd = await mkdtemp(path.join(os.tmpdir(), "codex2cc-env-config-"));
-        await writeFile(path.join(cwd, "codex2cc.local.json"), '{"ccCommand":"occ"}\n', "utf8");
+        await writeFile(path.join(cwd, "codex2cc.local.json"), '{"ccCommand":"custom-claude","ccArgs":["--local-only"]}\n', "utf8");
         const resolved = await resolveCliCommand({
             env: { CODEX2CC_CC_COMMAND: "claude" },
             configDir: cwd
         });
         assert.equal(resolved.command, "claude");
         assert.equal(resolved.source, "environment");
+        assert.deepEqual(resolved.args, []);
     });
 });

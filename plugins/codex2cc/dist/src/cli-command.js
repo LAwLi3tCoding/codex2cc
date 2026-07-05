@@ -2,34 +2,43 @@ import path from "node:path";
 import { readFile } from "node:fs/promises";
 export async function resolveCliCommand(input = {}) {
     const env = input.env ?? process.env;
-    const localConfigCommand = await readLocalConfigCommand(input.configDir);
-    const rawCommand = firstNonEmpty(input.ccCommand, env.CODEX2CC_CC_COMMAND, localConfigCommand, "claude");
+    const localConfig = await readLocalConfig(input.configDir);
+    const rawCommand = firstNonEmpty(input.ccCommand, env.CODEX2CC_CC_COMMAND, localConfig.ccCommand, "claude");
     const source = input.ccCommand?.trim()
         ? "input"
         : env.CODEX2CC_CC_COMMAND?.trim()
             ? "environment"
-            : localConfigCommand?.trim()
+            : localConfig.ccCommand?.trim()
                 ? "local-config"
                 : "fallback";
     const command = rawCommand.trim();
     rejectCommandWithArguments(command);
     rejectCompilerCc(command);
-    return { command, source };
+    return {
+        command,
+        args: source === "local-config" ? localConfig.ccArgs : [],
+        source
+    };
 }
-async function readLocalConfigCommand(configDir) {
+async function readLocalConfig(configDir) {
     if (!configDir) {
-        return undefined;
+        return { ccArgs: [] };
     }
     try {
         const configPath = path.join(configDir, "codex2cc.local.json");
         const rawConfig = await readFile(configPath, "utf8");
         const parsed = JSON.parse(rawConfig);
-        return typeof parsed.ccCommand === "string" ? parsed.ccCommand : undefined;
+        return {
+            ccCommand: typeof parsed.ccCommand === "string" ? parsed.ccCommand : undefined,
+            ccArgs: Array.isArray(parsed.ccArgs)
+                ? parsed.ccArgs.filter((arg) => typeof arg === "string")
+                : []
+        };
     }
     catch (error) {
         const code = typeof error === "object" && error !== null && "code" in error ? error.code : "";
         if (code === "ENOENT") {
-            return undefined;
+            return { ccArgs: [] };
         }
         throw error;
     }

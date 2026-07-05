@@ -39,12 +39,16 @@ For quick local setup, use the `codex2cc-configure` skill or run:
 
 ```bash
 cd plugins/codex2cc
-npm run configure:cc -- occ
+npm run configure:cc -- claude
 ```
 
 Do not rely on `/usr/bin/cc`; on macOS that is clang and the tool rejects it.
 For Claude Code print-style execution, pass `ccArgs: ["--print"]` if that is
 the correct protocol for the installed CLI.
+
+The ignored `codex2cc.local.json` file may also include `ccArgs`; those local
+arguments are prepended before tool input `ccArgs`, then the delegated prompt is
+appended last.
 
 ## Codex Responsibilities
 

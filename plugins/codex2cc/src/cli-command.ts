@@ -11,6 +11,7 @@ export interface ResolveCliCommandInput {
 
 export interface ResolvedCliCommand {
   command: string;
+  args: string[];
   source: CommandSource;
 }
 
@@ -18,18 +19,18 @@ export async function resolveCliCommand(
   input: ResolveCliCommandInput = {}
 ): Promise<ResolvedCliCommand> {
   const env = input.env ?? process.env;
-  const localConfigCommand = await readLocalConfigCommand(input.configDir);
+  const localConfig = await readLocalConfig(input.configDir);
   const rawCommand = firstNonEmpty(
     input.ccCommand,
     env.CODEX2CC_CC_COMMAND,
-    localConfigCommand,
+    localConfig.ccCommand,
     "claude"
   );
   const source: CommandSource = input.ccCommand?.trim()
     ? "input"
     : env.CODEX2CC_CC_COMMAND?.trim()
       ? "environment"
-      : localConfigCommand?.trim()
+      : localConfig.ccCommand?.trim()
         ? "local-config"
         : "fallback";
 
@@ -37,23 +38,32 @@ export async function resolveCliCommand(
   rejectCommandWithArguments(command);
   rejectCompilerCc(command);
 
-  return { command, source };
+  return {
+    command,
+    args: source === "local-config" ? localConfig.ccArgs : [],
+    source
+  };
 }
 
-async function readLocalConfigCommand(configDir?: string): Promise<string | undefined> {
+async function readLocalConfig(configDir?: string): Promise<{ ccCommand?: string; ccArgs: string[] }> {
   if (!configDir) {
-    return undefined;
+    return { ccArgs: [] };
   }
 
   try {
     const configPath = path.join(configDir, "codex2cc.local.json");
     const rawConfig = await readFile(configPath, "utf8");
-    const parsed = JSON.parse(rawConfig) as { ccCommand?: unknown };
-    return typeof parsed.ccCommand === "string" ? parsed.ccCommand : undefined;
+    const parsed = JSON.parse(rawConfig) as { ccCommand?: unknown; ccArgs?: unknown };
+    return {
+      ccCommand: typeof parsed.ccCommand === "string" ? parsed.ccCommand : undefined,
+      ccArgs: Array.isArray(parsed.ccArgs)
+        ? parsed.ccArgs.filter((arg): arg is string => typeof arg === "string")
+        : []
+    };
   } catch (error) {
     const code = typeof error === "object" && error !== null && "code" in error ? error.code : "";
     if (code === "ENOENT") {
-      return undefined;
+      return { ccArgs: [] };
     }
     throw error;
   }

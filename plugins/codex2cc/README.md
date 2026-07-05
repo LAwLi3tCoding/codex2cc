@@ -7,7 +7,7 @@ Each user can configure their own local cc command without changing tracked
 plugin files:
 
 ```bash
-npm run configure:cc -- occ
+npm run configure:cc -- claude
 ```
 
 This writes the ignored `codex2cc.local.json` file.
@@ -46,6 +46,10 @@ Command resolution order:
 2. environment variable `CODEX2CC_CC_COMMAND`;
 3. ignored local file `codex2cc.local.json`;
 4. fallback `claude`.
+
+The ignored local file may also include `ccArgs`. Those local arguments are
+prepended before tool input `ccArgs`, and the delegated prompt is still appended
+last.
 
 ## Local Checks
 
