@@ -101,17 +101,21 @@ codex2cc/
       tsconfig.json
 ```
 
-The repository root is the local Codex plugin marketplace. The installable
-plugin itself lives in `plugins/codex2cc`.
+The repository root is the Codex plugin marketplace. The installable plugin
+itself lives in `plugins/codex2cc`.
 
 ## Installation
 
-From the repository root:
+Install directly from GitHub:
 
 ```bash
-codex plugin marketplace add "$(pwd)"
-codex plugin add codex2cc@codex2cc-local
+codex plugin marketplace add https://github.com/LAwLi3tCoding/codex2cc
+codex plugin add codex2cc@codex2cc
 ```
+
+This does not require cloning the repository manually. Codex fetches the GitHub
+marketplace into its plugin cache, then installs the `codex2cc` plugin from
+that cached marketplace snapshot.
 
 Open a new Codex session after installing or reinstalling. Codex loads plugin
 skills and starts MCP servers when a session starts.
@@ -567,17 +571,20 @@ codex2cc/
       tsconfig.json
 ```
 
-仓库根目录是本地 Codex 插件 marketplace。真正可安装的插件位于
+仓库根目录是 Codex 插件 marketplace。真正可安装的插件位于
 `plugins/codex2cc`。
 
 ## 安装方式
 
-在仓库根目录执行：
+直接从 GitHub 安装：
 
 ```bash
-codex plugin marketplace add "$(pwd)"
-codex plugin add codex2cc@codex2cc-local
+codex plugin marketplace add https://github.com/LAwLi3tCoding/codex2cc
+codex plugin add codex2cc@codex2cc
 ```
+
+这不需要用户手动克隆仓库。Codex 会把 GitHub marketplace 拉到自己的插件
+缓存里，然后从该缓存快照安装 `codex2cc` 插件。
 
 安装或重新安装后，打开一个新的 Codex 会话。Codex 会在会话启动时加载插件
 skill 并启动 MCP server。
