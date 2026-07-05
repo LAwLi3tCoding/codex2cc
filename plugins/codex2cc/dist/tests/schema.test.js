@@ -9,7 +9,7 @@ describe("normalizeDelegateInput", () => {
         assert.equal(input.mode, "custom");
         assert.equal(input.timeoutMs, 900000);
         assert.equal(input.maxOutputBytes, 65536);
-        assert.equal(input.streamOutput, true);
+        assert.equal(input.streamOutput, false);
     });
     it("preserves optional context summary and current instruction", () => {
         const input = normalizeDelegateInput({

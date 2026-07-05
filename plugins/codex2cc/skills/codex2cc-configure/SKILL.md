@@ -31,7 +31,8 @@ Codex2CC resolves the command in this order:
 3. local ignored file `codex2cc.local.json`;
 4. fallback `claude`.
 
-Arguments do not belong in the command. Put flags in `ccArgs`.
+Arguments do not belong in the command. Put flags in `ccArgs`; when using
+`codex2cc.local.json`, `ccArgs` must be an array of strings.
 
 ## After Changing
 

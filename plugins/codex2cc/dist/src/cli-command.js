@@ -2,23 +2,20 @@ import path from "node:path";
 import { readFile } from "node:fs/promises";
 export async function resolveCliCommand(input = {}) {
     const env = input.env ?? process.env;
+    const explicitCommand = input.ccCommand?.trim();
+    if (explicitCommand) {
+        return buildResolvedCommand(explicitCommand, [], "input");
+    }
+    const envCommand = env.CODEX2CC_CC_COMMAND?.trim();
+    if (envCommand) {
+        return buildResolvedCommand(envCommand, [], "environment");
+    }
     const localConfig = await readLocalConfig(input.configDir);
-    const rawCommand = firstNonEmpty(input.ccCommand, env.CODEX2CC_CC_COMMAND, localConfig.ccCommand, "claude");
-    const source = input.ccCommand?.trim()
-        ? "input"
-        : env.CODEX2CC_CC_COMMAND?.trim()
-            ? "environment"
-            : localConfig.ccCommand?.trim()
-                ? "local-config"
-                : "fallback";
-    const command = rawCommand.trim();
-    rejectCommandWithArguments(command);
-    rejectCompilerCc(command);
-    return {
-        command,
-        args: source === "local-config" ? localConfig.ccArgs : [],
-        source
-    };
+    const localCommand = localConfig.ccCommand?.trim();
+    if (localCommand) {
+        return buildResolvedCommand(localCommand, localConfig.ccArgs, "local-config");
+    }
+    return buildResolvedCommand("claude", [], "fallback");
 }
 async function readLocalConfig(configDir) {
     if (!configDir) {
@@ -30,9 +27,7 @@ async function readLocalConfig(configDir) {
         const parsed = JSON.parse(rawConfig);
         return {
             ccCommand: typeof parsed.ccCommand === "string" ? parsed.ccCommand : undefined,
-            ccArgs: Array.isArray(parsed.ccArgs)
-                ? parsed.ccArgs.filter((arg) => typeof arg === "string")
-                : []
+            ccArgs: parseLocalCcArgs(parsed.ccArgs)
         };
     }
     catch (error) {
@@ -43,13 +38,28 @@ async function readLocalConfig(configDir) {
         throw error;
     }
 }
-function firstNonEmpty(...values) {
-    for (const value of values) {
-        if (value?.trim()) {
-            return value;
+function parseLocalCcArgs(value) {
+    if (value === undefined) {
+        return [];
+    }
+    if (!Array.isArray(value)) {
+        throw new Error("codex2cc.local.json ccArgs must be an array of strings");
+    }
+    for (const arg of value) {
+        if (typeof arg !== "string") {
+            throw new Error("codex2cc.local.json ccArgs must be an array of strings");
         }
     }
-    throw new Error("No CLI command could be resolved");
+    return value;
+}
+function buildResolvedCommand(command, args, source) {
+    rejectCommandWithArguments(command);
+    rejectCompilerCc(command);
+    return {
+        command,
+        args,
+        source
+    };
 }
 function rejectCompilerCc(command) {
     const basename = path.basename(command);

@@ -18,7 +18,7 @@ export const delegateInputSchema = z.object({
   ccArgs: z.array(z.string()).default([]),
   resultFile: z.string().min(1).optional(),
   maxOutputBytes: z.number().int().min(1).max(MAX_OUTPUT_BYTES).default(DEFAULT_OUTPUT_BYTES),
-  streamOutput: z.boolean().default(true)
+  streamOutput: z.boolean().default(false)
 });
 
 export interface NormalizedDelegateInput {

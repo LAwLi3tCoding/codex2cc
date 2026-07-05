@@ -34,6 +34,7 @@ export async function runDelegatedTask(input) {
         const killGraceMs = input.killGraceMs ?? 1000;
         const child = spawn(command.command, args, {
             cwd,
+            detached: process.platform !== "win32",
             stdio: ["ignore", "pipe", "pipe"]
         });
         const clearTimers = () => {
@@ -66,10 +67,10 @@ export async function runDelegatedTask(input) {
         };
         timeout = setTimeout(() => {
             timedOut = true;
-            child.kill("SIGTERM");
+            signalChildProcessTree(child, "SIGTERM");
             killTimer = setTimeout(() => {
                 if (child.exitCode === null && child.signalCode === null) {
-                    child.kill("SIGKILL");
+                    signalChildProcessTree(child, "SIGKILL");
                 }
             }, killGraceMs);
         }, input.timeoutMs);
@@ -146,13 +147,43 @@ async function readResultFile(cwd, resultFile, maxBytes) {
     if (relative.startsWith("..") || path.isAbsolute(relative)) {
         throw new Error("resultFile must stay inside cwd");
     }
-    const fileStat = await stat(absolutePath);
-    if (fileStat.size > maxBytes) {
-        throw new Error(`resultFile exceeds maxOutputBytes (${maxBytes})`);
+    try {
+        const fileStat = await stat(absolutePath);
+        if (fileStat.size > maxBytes) {
+            return {
+                path: absolutePath,
+                content: "",
+                truncated: true,
+                error: `resultFile exceeds maxOutputBytes (${maxBytes})`
+            };
+        }
+        return {
+            path: absolutePath,
+            content: await readFile(absolutePath, "utf8"),
+            truncated: false
+        };
     }
-    return {
-        path: absolutePath,
-        content: await readFile(absolutePath, "utf8"),
-        truncated: false
-    };
+    catch (error) {
+        return {
+            path: absolutePath,
+            content: "",
+            truncated: false,
+            error: error instanceof Error ? error.message : String(error)
+        };
+    }
+}
+function signalChildProcessTree(child, signal) {
+    if (process.platform !== "win32" && child.pid !== undefined) {
+        try {
+            process.kill(-child.pid, signal);
+            return;
+        }
+        catch (error) {
+            const code = typeof error === "object" && error !== null && "code" in error ? error.code : "";
+            if (code === "ESRCH") {
+                return;
+            }
+        }
+    }
+    child.kill(signal);
 }

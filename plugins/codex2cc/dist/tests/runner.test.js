@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtemp, writeFile } from "node:fs/promises";
+import { access, mkdtemp, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { runDelegatedTask } from "../src/runner.js";
@@ -126,6 +126,43 @@ describe("runDelegatedTask", () => {
         });
         assert.equal(result.resultFile?.path, path.join(cwd, "summary.txt"));
         assert.equal(result.resultFile?.content, "worker summary");
+    });
+    it("keeps worker results when an in-cwd result file is missing", async () => {
+        const cwd = await mkdtemp(path.join(os.tmpdir(), "codex2cc-missing-result-"));
+        const result = await runDelegatedTask({
+            prompt: "hello",
+            mode: "custom",
+            cwd,
+            ccCommand: process.execPath,
+            ccArgs: [path.join(fixturesDir, "echo-worker.mjs")],
+            resultFile: "missing.txt",
+            streamOutput: false,
+            timeoutMs: 2000,
+            maxOutputBytes: 1024
+        });
+        assert.equal(result.status, "success");
+        assert.match(result.stdoutTail, /stdout:/);
+        assert.equal(result.resultFile?.path, path.join(cwd, "missing.txt"));
+        const resultFile = result.resultFile;
+        assert.match(resultFile?.error ?? "", /ENOENT|no such file/i);
+    });
+    it("terminates descendants in the timed-out worker process group", async () => {
+        const cwd = await mkdtemp(path.join(os.tmpdir(), "codex2cc-process-tree-"));
+        const markerPath = path.join(cwd, "descendant-marker.txt");
+        const result = await runDelegatedTask({
+            prompt: "tree timeout",
+            mode: "custom",
+            cwd,
+            ccCommand: process.execPath,
+            ccArgs: [path.join(fixturesDir, "spawn-descendant-worker.mjs"), markerPath],
+            streamOutput: false,
+            timeoutMs: 100,
+            maxOutputBytes: 2048,
+            killGraceMs: 50
+        });
+        await new Promise((resolve) => setTimeout(resolve, 800));
+        assert.equal(result.status, "timed_out");
+        await assert.rejects(() => access(markerPath), /ENOENT/);
     });
     it("rejects result files outside cwd", async () => {
         const cwd = await mkdtemp(path.join(os.tmpdir(), "codex2cc-traversal-"));

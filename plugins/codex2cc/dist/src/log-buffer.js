@@ -19,7 +19,7 @@ export class LogBuffer {
         this.#trim();
     }
     text() {
-        return Buffer.concat(this.#chunks, this.#byteLength).toString("utf8");
+        return decodeUtf8Tail(Buffer.concat(this.#chunks, this.#byteLength));
     }
     #trim() {
         if (this.#byteLength <= this.maxBytes) {
@@ -40,4 +40,14 @@ export class LogBuffer {
             overflow = 0;
         }
     }
+}
+function decodeUtf8Tail(buffer) {
+    let offset = 0;
+    while (offset < buffer.length && isUtf8ContinuationByte(buffer[offset])) {
+        offset += 1;
+    }
+    return buffer.subarray(offset).toString("utf8");
+}
+function isUtf8ContinuationByte(byte) {
+    return byte >= 0x80 && byte <= 0xbf;
 }
