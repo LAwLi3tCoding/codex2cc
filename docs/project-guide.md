@@ -44,15 +44,15 @@ codex2cc/
       tsconfig.json
 ```
 
-The repository root is the local marketplace root. The actual installable plugin
-is `plugins/codex2cc`.
+The repository root is the marketplace root. The actual installable plugin is
+`plugins/codex2cc`.
 
 ## Main Components
 
 ### Marketplace
 
-`.agents/plugins/marketplace.json` defines marketplace `codex2cc-local` and
-points Codex at `./plugins/codex2cc`.
+`.agents/plugins/marketplace.json` defines marketplace `codex2cc` and points
+Codex at `./plugins/codex2cc`.
 
 ### Plugin Manifest
 
@@ -230,20 +230,28 @@ Current instruction from Codex:
 This makes cc aware of the important prior Codex context without requiring the
 plugin to access hidden runtime state.
 
-## Installing Locally
+## Installing From GitHub
 
-Clone the repository first, then add the repository root as a local marketplace:
+For normal users:
 
 ```bash
-git clone https://github.com/LAwLi3tCoding/codex2cc.git
-cd codex2cc
-codex plugin marketplace add "$(pwd)"
-codex plugin add codex2cc@codex2cc-local
+codex plugin marketplace add https://github.com/LAwLi3tCoding/codex2cc
+codex plugin add codex2cc@codex2cc
 ```
 
-`codex plugin marketplace add "$(pwd)"` must be run from the repository root.
-The repository root is the marketplace source; the installable plugin is still
-resolved from `plugins/codex2cc`.
+This lets Codex clone the marketplace into its plugin cache. Users do not need
+to clone the repository manually.
+
+For local development from an existing checkout:
+
+```bash
+codex plugin marketplace add "$(pwd)"
+codex plugin add codex2cc@codex2cc
+```
+
+Run the local-path command from the repository root. The repository root is the
+marketplace source; the installable plugin is still resolved from
+`plugins/codex2cc`.
 
 Open a new Codex thread after installing or reinstalling, because plugin tools
 and skills are loaded at session start.
@@ -256,7 +264,7 @@ After changing plugin source:
 python3 "$HOME/.codex/skills/.system/plugin-creator/scripts/update_plugin_cachebuster.py" \
   "$(pwd)/plugins/codex2cc"
 
-codex plugin add codex2cc@codex2cc-local
+codex plugin add codex2cc@codex2cc
 ```
 
 Then open a new Codex thread.
@@ -306,8 +314,8 @@ python3 -m venv /tmp/codex2cc-validator-venv
 - A `claude` executable exists locally, but the plugin does not hard-code that
   path.
 - The workspace initially was not a git repository.
-- The installed plugin is visible as `codex2cc@codex2cc-local` after local
-  marketplace registration.
+- The installed plugin is visible as `codex2cc@codex2cc` after marketplace
+  registration.
 
 ## Second Check Findings
 

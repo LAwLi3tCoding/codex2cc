@@ -1,7 +1,7 @@
 {
-  "name": "codex2cc-local",
+  "name": "codex2cc",
   "interface": {
-    "displayName": "Codex2CC Local"
+    "displayName": "Codex2CC"
   },
   "plugins": [
     {

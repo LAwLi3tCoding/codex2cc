@@ -80,12 +80,12 @@ at `plugins/codex2cc`, and the repo-level marketplace points at
 The script wrapper resolves the built server relative to the plugin root and
 keeps plugin installation independent of a globally installed package binary.
 
-`.agents/plugins/marketplace.json` declares a local marketplace named
-`codex2cc-local` with one plugin entry:
+`.agents/plugins/marketplace.json` declares a marketplace named `codex2cc`
+with one plugin entry:
 
 ```json
 {
-  "name": "codex2cc-local",
+  "name": "codex2cc",
   "plugins": [
     {
       "name": "codex2cc",

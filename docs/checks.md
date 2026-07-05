@@ -113,8 +113,8 @@ Pass.
 
 Pass.
 
-- The local marketplace `codex2cc-local` was added from the project root.
-- The plugin was installed as `codex2cc@codex2cc-local`.
+- The marketplace `codex2cc` can be added from GitHub or from a local checkout.
+- The plugin is installed as `codex2cc@codex2cc`.
 - The installed plugin remains a Codex plugin plus MCP stdio tool, with no
   hook surface added.
 
@@ -133,11 +133,11 @@ Pass.
 Pass.
 
 - `codex plugin marketplace add "$(pwd)" --json` returned
-  `marketplaceName: codex2cc-local`.
-- `codex plugin add codex2cc@codex2cc-local --json` installed the
+  `marketplaceName: codex2cc`.
+- `codex plugin add codex2cc@codex2cc --json` installed the
   cachebuster-tagged local version.
 - `codex plugin list --json` reports `installed: true` and `enabled: true` for
-  `codex2cc@codex2cc-local`.
+  `codex2cc@codex2cc`.
 - `npm run smoke:mcp` passed from the installed cache path after the wrapper
   was verified.
 
